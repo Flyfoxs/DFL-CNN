@@ -14,7 +14,7 @@ def validate(args, val_loader, model, criterion, epoch):
     end = time.time()
 
     # we may have ten d in data
-    for i, (data, target, paths) in enumerate(val_loader):
+    for i, (data, target) in enumerate(val_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()
@@ -47,7 +47,7 @@ def validate_simple(args, val_loader, model, criterion, epoch):
     end = time.time()
 
     # we may have ten d in data
-    for i, (data, target, paths) in enumerate(val_loader):
+    for i, (data, target) in enumerate(val_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()

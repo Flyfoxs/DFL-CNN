@@ -25,7 +25,7 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
     # switch to train mode
     model.train()
 
-    for i, (data, target, paths) in enumerate(train_loader):
+    for i, (data, target) in enumerate(train_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()

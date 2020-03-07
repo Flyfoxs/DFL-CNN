@@ -118,18 +118,18 @@ def main():
     
 
     print('DFL-CNN <==> Part3 : Load Dataset  <==> Begin')
-    dataroot = os.path.abspath(args.dataroot)
-    traindir = os.path.join(dataroot, 'train')
-    testdir = os.path.join(dataroot, 'test')
+    # dataroot = os.path.abspath(args.dataroot)
+    # traindir = os.path.join(dataroot, 'train')
+    # testdir = os.path.join(dataroot, 'test')
 
     # ImageFolder to process img
     transform_train = get_transform_for_train()
     transform_test  = get_transform_for_test()
     transform_test_simple = get_transform_for_test_simple()
 
-    train_dataset = ImageFolderWithPaths(traindir, transform = transform_train)
-    test_dataset  = ImageFolderWithPaths(testdir,  transform = transform_test)
-    test_dataset_simple = ImageFolderWithPaths(testdir, transform = transform_test_simple)
+    train_dataset = Cub2011(train=True, transform = transform_train)
+    test_dataset  = Cub2011(train=False,  transform = transform_test)
+    test_dataset_simple = Cub2011(train=False, transform = transform_test_simple)
 
     # A list for target to classname
     index2classlist = train_dataset.index2classlist()

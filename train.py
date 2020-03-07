@@ -25,7 +25,7 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
     # switch to train mode
     model.train()
 
-    for i, (data, target, paths) in enumerate(train_loader):
+    for i, (data, target, _) in enumerate(train_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()
@@ -59,17 +59,18 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
         optimizer.step()
         
         if i % args.print_freq == 0:
-            print('DFL-CNN <==> Train Epoch: [{0}][{1}/{2}]\n'
-                'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                'Loss1 {loss1.val:.4f} ({loss1.avg:.4f})\t'
-                'Loss2 {loss2.val:.4f} ({loss2.avg:.4f})\t'
-                'Loss3 {loss3.val:.4f} ({loss3.avg:.4f})\n'
-                'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                epoch, i, len(train_loader), loss=losses, loss1=losses1, loss2=losses2, loss3=losses3, top1=top1, top5=top5))
-            
+            # print('DFL-CNN <==> Train Epoch: [{0}][{1}/{2}]\n'
+            #     'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+            #     'Loss1 {loss1.val:.4f} ({loss1.avg:.4f})\t'
+            #     'Loss2 {loss2.val:.4f} ({loss2.avg:.4f})\t'
+            #     'Loss3 {loss3.val:.4f} ({loss3.avg:.4f})\n'
+            #     'Top1 {top1.val:.3f} ({top1.avg:.3f})\t'
+            #     'Top5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+            #     epoch, i, len(train_loader), loss=losses, loss1=losses1, loss2=losses2, loss3=losses3, top1=top1, top5=top5))
+            #
             totalloss = [losses, losses1, losses2, losses3]
             log.save_train_info(epoch, i, len(train_loader), totalloss, top1, top5)
+        return top1.avg, top5.avg
 
 
 

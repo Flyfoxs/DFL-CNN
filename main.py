@@ -23,6 +23,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from utils.MyImageFolderWithPaths import *
 from drawrect import *
+from easydict import EasyDict as edict
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('--dataroot', metavar='DIR',
@@ -79,14 +81,29 @@ parser.add_argument('--h', default=448, type=int,
 
 best_prec1 = 0
 
-def main():
+
+
+###### sacred begin
+from sacred import Experiment
+from easydict import EasyDict as edict
+from sacred.observers import MongoObserver
+from sacred import SETTINGS
+from task_distribute.locker import task_locker
+from file_cache.cache import file_cache, logger, timed
+
+global ex
+ex = Experiment('DFL')
+db_url = 'mongodb://sample:password@10.10.20.103:27017/db?authSource=admin'
+ex.observers.append(MongoObserver(url=db_url, db_name='db'))
+
+@ex.command()
+def main(_config):
     print('DFL-CNN <==> Part1 : prepare for parameters <==> Begin')
     global args, best_prec1
-    args = parser.parse_args()
+    args = edict(_config)
+
     print('DFL-CNN <==> Part1 : prepare for parameters <==> Done')
 
-
-    
     print('DFL-CNN <==> Part2 : Load Network  <==> Begin')
     model = DFL_VGG16(k = 10, nclass = 200)     
     if args.gpu is not None:
@@ -118,7 +135,7 @@ def main():
     
 
     print('DFL-CNN <==> Part3 : Load Dataset  <==> Begin')
-    dataroot = os.path.abspath(args.dataroot)
+    dataroot = './input/CUB_split/dataset'
     traindir = os.path.join(dataroot, 'train')
     testdir = os.path.join(dataroot, 'test')
 
@@ -148,16 +165,21 @@ def main():
    
 
     print('DFL-CNN <==> Part4 : Train and Test  <==> Begin')
-    for epoch in range(args.start_epoch, args.epochs):
+    for epoch in tqdm(range(args.start_epoch, args.epochs)):
         adjust_learning_rate(args, optimizer, epoch, gamma = 0.1)
         
         # train for one epoch
-        train(args, train_loader, model, criterion, optimizer, epoch)
+        top1, top5 = train(args, train_loader, model, criterion, optimizer, epoch)
 
         # evaluate on validation set
         if epoch % args.eval_epoch == 0:
-            prec1 = validate_simple(args, test_loader_simple, model, criterion, epoch)
-            
+            prec1, prec5 = validate_simple(args, test_loader_simple, model, criterion, epoch)
+
+            ex.log_scalar('trn_top1', top1, epoch)
+            ex.log_scalar('trn_top5', top5, epoch)
+            ex.log_scalar('val_top1', prec1, epoch)
+            ex.log_scalar('val_top5', prec5, epoch)
+
             # remember best prec@1 and save checkpoint
             is_best = prec1 > best_prec1
             best_prec1 = max(prec1, best_prec1)
@@ -177,4 +199,22 @@ def main():
 
 
 if __name__ == '__main__':
-     main() 
+    args = parser.parse_args()
+    real_conf = edict(vars(args))
+    version = 'DFL04'
+    locker = task_locker('mongodb://sample:password@10.10.20.103:27017/db?authSource=admin', remove_failed=9,
+                         version=version)
+    task_id = f'lung_{real_conf}'
+    # pydevd_pycharm.settrace('10.10.20.66', port=1234, stdoutToServer=True, stderrToServer=True)
+    with locker.lock_block(task_id=task_id) as lock_id:
+        if lock_id is not None:
+            ex.add_config({
+                **real_conf,
+                'lock_id': lock_id,
+                'lock_name': task_id,
+                'version': version,
+                'GPU': os.environ.get('CUDA_VISIBLE_DEVICES'),
+            })
+            sys.argv = ['_', 'main']
+            res = ex.run_commandline()
+

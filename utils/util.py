@@ -46,7 +46,7 @@ class AverageMeter(object):
         self.val = val
         self.sum += val * n
         self.count += n
-        self.avg = self.sum / self.count
+        self.avg = float(self.sum / self.count)
         
 def make_weights_for_balanced_classes(images, nclasses):
     count = [0] * nclasses
@@ -86,6 +86,7 @@ def diagnose_network(net, name='network'):
 # train
 def adjust_learning_rate(args, optimizer, epoch, gamma=0.1):
     """Sets the learning rate to the initial LR decayed 0.9 every 50 epochs"""
-    lr = args.lr * (0.9 ** (epoch // 10))
+    lr = round(args.lr * (0.9 ** (epoch // 10)), 7)
+    print(f'\nlearning epoch#{epoch} is: {lr}')
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr

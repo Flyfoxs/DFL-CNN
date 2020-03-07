@@ -139,14 +139,18 @@ def draw_patch(epoch, model, index2classlist, args):
         os.mkdir(result)
 
     path_img = os.path.join(os.path.abspath('./'), 'vis_img')
+    os.makedirs(path_img, exist_ok=True)
     num_imgs = len(os.listdir(path_img))
 
-    dirs = os.path.join(result, str(epoch))
-    if not os.path.exists(dirs):
-        os.mkdir(dirs)
-    
-    for original in range(num_imgs):
-        img_path = os.path.join(path_img, '{}.jpg'.format(original)) 
+    dirs = f'{result}/{epoch:03}' #os.path.join(result, str(epoch))
+    #shutil.rmtree(dirs)
+    os.makedirs(dirs, exist_ok=True)
+
+    from glob import  glob
+    for img_path in glob(f'{path_img}/*.jpg', recursive=True):
+    # for original in range(num_imgs):
+    #     img_path = os.path.join(path_img, '{}.jpg'.format(original))
+        original = os.path.basename(img_path)
         
         transform1 = get_transform()       # transform for predict 
         transform2 = transform_onlysize()  # transform for draw

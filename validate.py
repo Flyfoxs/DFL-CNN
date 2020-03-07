@@ -10,11 +10,11 @@ def validate(args, val_loader, model, criterion, epoch):
     top1 = AverageMeter()
     top5 = AverageMeter()
     log = Log()
-    model.eval()   
+    model.eval()
     end = time.time()
 
     # we may have ten d in data
-    for i, (data, target, paths) in enumerate(val_loader):
+    for i, (data, target, _) in enumerate(val_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()
@@ -47,7 +47,7 @@ def validate_simple(args, val_loader, model, criterion, epoch):
     end = time.time()
 
     # we may have ten d in data
-    for i, (data, target, paths) in enumerate(val_loader):
+    for i, (data, target, _) in enumerate(val_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()
@@ -63,11 +63,11 @@ def validate_simple(args, val_loader, model, criterion, epoch):
 
             top1.update(prec1[0], 1)
             top5.update(prec5[0], 1)
-            print('DFL-CNN <==> Test <==> Img:{} Top1 {:.3f} Top5 {:.3f}'.format(i, prec1.cpu().numpy()[0], prec5.cpu().numpy()[0]))
+           # print('DFL-CNN <==> Test <==> Img:{} Top1 {:.3f} Top5 {:.3f}'.format(i, prec1.cpu().numpy()[0], prec5.cpu().numpy()[0]))
 
-    print('DFL-CNN <==> Test Total <==> Top1 {:.3f}% Top5 {:.3f}%'.format(top1.avg, top5.avg))
+    print('DFL-CNN <==> Test Total@epoch{} <==> Top1 {:.3f}% Top5 {:.3f}%'.format(epoch, top1.avg, top5.avg))
     log.save_test_info(epoch, top1, top5)
-    return top1.avg
+    return top1.avg, top5.avg
 
 
 

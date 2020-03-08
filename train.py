@@ -25,7 +25,7 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
     # switch to train mode
     model.train()
 
-    for i, (data, target, _) in enumerate(train_loader):
+    for i, (data, target) in enumerate(train_loader):
         if args.gpu is not None:
             data = data.cuda()
             target = target.cuda()
@@ -70,7 +70,7 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
             #
             totalloss = [losses, losses1, losses2, losses3]
             log.save_train_info(epoch, i, len(train_loader), totalloss, top1, top5)
-        return top1.avg, top5.avg
+    return top1.avg, top5.avg
 
 
 

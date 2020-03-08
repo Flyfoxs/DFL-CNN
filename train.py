@@ -70,7 +70,7 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
             #
             totalloss = [losses, losses1, losses2, losses3]
             log.save_train_info(epoch, i, len(train_loader), totalloss, top1, top5)
-    return top1.avg, top5.avg
+    return top1.avg, top5.avg, losses.avg
 
 
 

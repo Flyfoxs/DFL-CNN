@@ -85,8 +85,9 @@ def diagnose_network(net, name='network'):
 
 # train
 def adjust_learning_rate(args, optimizer, epoch, gamma=0.1):
-    """Sets the learning rate to the initial LR decayed 0.9 every 50 epochs"""
-    lr = round(args.lr * (0.9 ** (epoch // 10)), 7)
-    print(f'\nlearning epoch#{epoch} is: {lr}')
+    """Sets the learning rate to the initial LR decayed 0.5 every 10 epochs"""
+    lr = round(args.lr * (0.7 ** (epoch // 10)), 6)
+    #print(f'\nlearning epoch#{epoch} is: {lr}')
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
+    return lr

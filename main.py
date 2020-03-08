@@ -43,7 +43,7 @@ parser.add_argument('-testbatch', '--test_batch_size', default=64, type=int,
                     metavar='N', help='mini-batch size (default: 32)')
 parser.add_argument('--init_type',  default='xavier', type=str,
                     metavar='INIT',help='init net')
-parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
+parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float,
                     metavar='momentum', help='momentum')
@@ -165,11 +165,12 @@ def main(_config):
    
 
     print('DFL-CNN <==> Part4 : Train and Test  <==> Begin')
-    for epoch in tqdm(range(args.start_epoch, args.epochs)):
-        adjust_learning_rate(args, optimizer, epoch, gamma = 0.1)
+    tbar = tqdm(range(args.start_epoch, args.epochs))
+    for epoch in tbar:
+        lr = adjust_learning_rate(args, optimizer, epoch, gamma = 0.1)
         
         # train for one epoch
-        top1, top5 = train(args, train_loader, model, criterion, optimizer, epoch)
+        top1, top5, losses = train(args, train_loader, model, criterion, optimizer, epoch)
 
         # evaluate on validation set
         if epoch % args.eval_epoch == 0:
@@ -192,8 +193,11 @@ def main(_config):
             }, is_best) 
 
         # do a test for visualization    
-        if epoch % args.vis_epoch  == 0 and epoch != 0: 
+        if epoch % args.vis_epoch == 0 and epoch != 0:
             draw_patch(epoch, model, index2classlist, args)
+
+        tbar.set_postfix(train_top1=top1, val_top1=prec1, train_top5=top5, val_prec5=prec5, epoch=epoch, lr=lr,
+                         refresh=False)
         
 
 

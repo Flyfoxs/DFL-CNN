@@ -65,7 +65,7 @@ def validate_simple(args, val_loader, model, criterion, epoch):
             top5.update(prec5[0], 1)
             #print('DFL-CNN <==> Test <==> Img:epoch:{},batch:{} Top1 {:.3f} Top5 {:.3f}'.format(epoch, i, prec1.cpu().numpy()[0], prec5.cpu().numpy()[0]))
 
-    print('DFL-CNN <==> Test Total@epoch{} <==> Top1 {:.3f}% Top5 {:.3f}%'.format(epoch, top1.avg, top5.avg))
+    #print('DFL-CNN <==> Test Total@epoch{} <==> Top1 {:.3f}% Top5 {:.3f}%'.format(epoch, top1.avg, top5.avg))
     log.save_test_info(epoch, top1, top5)
     return top1.avg, top5.avg
 

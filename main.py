@@ -1,3 +1,5 @@
+from torch.optim.lr_scheduler import MultiStepLR, ReduceLROnPlateau, StepLR
+
 from model.DFL import DFL_VGG16
 from utils.util import *
 from utils.transform import *
@@ -167,10 +169,10 @@ def main(_config):
     print('DFL-CNN <==> Part4 : Train and Test  <==> Begin')
     tbar = tqdm(range(args.start_epoch, args.epochs))
     for epoch in tbar:
-        lr = adjust_learning_rate(args, optimizer, epoch, gamma = 0.1)
-        
-        # train for one epoch
+
+        scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
         top1, top5, losses = train(args, train_loader, model, criterion, optimizer, epoch)
+        scheduler.step()
 
         # evaluate on validation set
         if epoch % args.eval_epoch == 0:
@@ -190,12 +192,14 @@ def main(_config):
                 'best_prec1': best_prec1,
                 'optimizer' : optimizer.state_dict(),
                 'prec1'     : prec1,
-            }, is_best) 
+            }, is_best)
+
 
         # do a test for visualization    
         if epoch % args.vis_epoch == 0 and epoch != 0:
             draw_patch(epoch, model, index2classlist, args)
 
+        lr = scheduler.get_lr()
         tbar.set_postfix(train_top1=top1, val_top1=prec1, train_top5=top5, val_prec5=prec5, epoch=epoch, lr=lr,
                          refresh=False)
         

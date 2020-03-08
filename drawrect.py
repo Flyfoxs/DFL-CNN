@@ -144,7 +144,7 @@ def draw_patch(epoch, model, index2classlist, args):
 
     dirs = f'{result}/{epoch:03}' #os.path.join(result, str(epoch))
     #shutil.rmtree(dirs)
-    os.makedirs(dirs, exist_ok=True)
+    #os.makedirs(dirs, exist_ok=True)
 
     from glob import  glob
     for img_path in glob(f'{path_img}/*.jpg', recursive=True):
@@ -179,7 +179,9 @@ def draw_patch(epoch, model, index2classlist, args):
         dirname = index2classlist[idx]
     
         filename = 'epoch_'+'{:0>3}'.format(epoch)+'_[org]_'+str(original)+'_[predict]_'+str(dirname)+'.jpg'
-        filepath = os.path.join(os.path.join(result,str(epoch)),filename)
+        #filepath = os.path.join(os.path.join(result,str(epoch)),filename)
+        os.makedirs(dirs, exist_ok=True)
+        filepath = f'{dirs}/{filename}'
         img_pad.save(filepath, "JPEG") 
 
     
